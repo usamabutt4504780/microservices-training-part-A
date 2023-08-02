@@ -1,0 +1,24 @@
+# selecting the base image
+FROM node:alpine
+
+# Selecting the Work Directory
+WORKDIR /app
+
+# First only copying the `package.json` file to container FS snapshot, 
+# So `npm install` command only install the dependencies again if there
+# are changes made to the `package.json` other wise used cached image/comtainer
+COPY ./billing-service/package*.json ./
+RUN npm install
+
+# Copying all the source files inside the container FS snapshot 
+COPY ./billing-service .
+
+# Copy files of 'lib' from the parent directory into 'lib' of the working directory
+COPY ./lib /app/lib
+RUN cd /app/lib && npm install
+
+# Default Command
+CMD [ "npm", "run", "start:dev" ]
+
+# Expose the port on which the service will run
+EXPOSE 5001
